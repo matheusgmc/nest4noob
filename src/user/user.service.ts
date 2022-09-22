@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 
 import { User, Prisma } from "@prisma/client";
@@ -29,6 +29,13 @@ export class UserService {
 
   async updateUser(params: { where: Prisma.UserWhereUniqueInput, data: Prisma.UserUpdateInput }): Promise<User> {
     const { where, data } = params;
+    if (!await this.user(where)) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: "NotFound",
+        message: "user not found"
+      }, HttpStatus.NOT_FOUND)
+    }
     return this.prisma.user.update({ data, where });
   }
 
