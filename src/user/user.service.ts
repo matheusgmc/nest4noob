@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/database/prisma.service';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
 
 import { User, Prisma } from "@prisma/client";
 
@@ -13,11 +13,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: "NotFound",
-        message: "user not found"
-      }, HttpStatus.NOT_FOUND)
+      throw new NotFoundException("user not found");
     }
     return user
   }
