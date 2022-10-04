@@ -29,7 +29,13 @@ describe("UserService", () => {
             user: {
               findUnique: jest.fn().mockResolvedValue(null).mockResolvedValueOnce(mockUser[0]),
               findMany: jest.fn().mockResolvedValue(mockUser),
-              create: jest.fn(),
+              create: jest.fn().mockResolvedValue(
+                {
+                  email: "user@user.com",
+                  name: "user test",
+                  id: 3
+                }
+              ),
               update: jest.fn(),
               delete: jest.fn()
             }
@@ -66,4 +72,26 @@ describe("UserService", () => {
     });
   });
 
+  describe("create user", () => {
+    it("should create a user with success", async () => {
+      await expect(suit.createUser({
+        email: "user@user.com",
+        name: "user test"
+      })).resolves.toEqual(
+        {
+          email: "user@user.com",
+          name: "user test",
+          id: 3
+        }
+      );
+    });
+
+    it("should return an exception in the absence of a param", async () => {
+      await expect(suit.createUser({
+        email: "",
+        name: "user test"
+      })).rejects.toThrowError("missing params");
+    });
+
+  });
 });
