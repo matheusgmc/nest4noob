@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 import { User, Prisma } from "@prisma/client";
@@ -29,6 +29,10 @@ export class UserService {
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    const { name, email } = data;
+    if (!name || !email) {
+      throw new BadRequestException("missing params");
+    }
     return this.prisma.user.create({ data });
   }
 
