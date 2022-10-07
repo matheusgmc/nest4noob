@@ -1,10 +1,14 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
-
+import { HttpException, HttpStatus, Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { User, Prisma } from "@prisma/client";
+import { ValidationError } from 'class-validator';
+import { transformAndValidate } from "class-transformer-validator";
+
+import { PrismaService } from '../database/prisma.service';
+import { CreateUserDTO } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
+  readonly validator = transformAndValidate;
   constructor(private prisma: PrismaService) { }
 
   async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User> {
@@ -28,12 +32,20 @@ export class UserService {
     return this.prisma.user.findMany(params);
   }
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    const { name, email } = data;
-    if (!name || !email) {
-      throw new BadRequestException("missing params");
+  async createUser(data: CreateUserDTO): Promise<User> {
+    try {
+      await this.validator(CreateUserDTO, data);
+      return this.prisma.user.create({ data });
+    } catch (error: any) {
+      const constraints = this.constraintsErrors(error)
+      if (constraints.length > 0) {
+        throw new BadRequestException({
+          message: constraints
+        })
+      }
+
+      throw new InternalServerErrorException();
     }
-    return this.prisma.user.create({ data });
   }
 
   async updateUser(params: { where: Prisma.UserWhereUniqueInput, data: Prisma.UserUpdateInput }): Promise<User> {
@@ -52,4 +64,16 @@ export class UserService {
     return this.prisma.user.delete({ where });
   }
 
+  private constraintsErrors(data: ValidationError[]): string[] {
+    return data.map(elem => Object.values(elem.constraints || {})).flat();
+  }
 }
+
+
+
+
+
+
+
+
+
