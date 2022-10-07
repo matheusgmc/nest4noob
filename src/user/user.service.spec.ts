@@ -90,7 +90,7 @@ describe("UserService", () => {
       await expect(suit.createUser({
         email: "",
         name: "user test"
-      })).rejects.toThrowError("missing params");
+      })).rejects.toHaveProperty("response.message", ["email must be an email"]);
     });
 
   });
