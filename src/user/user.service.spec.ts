@@ -27,7 +27,7 @@ describe("UserService", () => {
           provide: PrismaService,
           useValue: {
             user: {
-              findUnique: jest.fn().mockResolvedValue(null).mockResolvedValueOnce(mockUser[0]),
+              findUnique: jest.fn().mockResolvedValue(mockUser[0]).mockResolvedValueOnce(mockUser[0]).mockResolvedValueOnce(null),
               findMany: jest.fn().mockResolvedValue(mockUser),
               create: jest.fn().mockResolvedValue(
                 {
@@ -36,7 +36,10 @@ describe("UserService", () => {
                   id: 3
                 }
               ),
-              update: jest.fn(),
+              update: jest.fn().mockResolvedValueOnce({
+                ...mockUser[0],
+                name: "test user"
+              }),
               delete: jest.fn()
             }
           }
@@ -94,4 +97,23 @@ describe("UserService", () => {
     });
 
   });
+
+  describe("update user", () => {
+    it("should update name successfully", async () => {
+      await expect(suit.updateUser({
+        data: {
+          name: "test user"
+        },
+        where: {
+          id: 1
+        }
+      })).resolves.toEqual({
+        ...mockUser[0],
+        name: "test user"
+      });
+
+    });
+
+  });
+
 });
