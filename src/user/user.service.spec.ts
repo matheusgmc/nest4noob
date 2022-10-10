@@ -40,7 +40,7 @@ describe("UserService", () => {
                 ...mockUser[0],
                 name: "test user"
               }),
-              delete: jest.fn()
+              delete: jest.fn().mockResolvedValueOnce(mockUser[0])
             }
           }
         }
@@ -116,4 +116,12 @@ describe("UserService", () => {
 
   });
 
+  describe("delete user", () => {
+    it("should delete user successfully", async () => {
+      await expect(suit.deleteUser({
+        id: 1
+      })).resolves.toEqual(mockUser[0])
+
+    });
+  });
 });
