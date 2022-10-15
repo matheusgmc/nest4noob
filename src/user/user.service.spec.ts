@@ -93,7 +93,6 @@ describe('UserService', () => {
       ).resolves.toEqual({
         email: 'user@user.com',
         name: 'user test',
-        id: 3,
       });
     });
 
