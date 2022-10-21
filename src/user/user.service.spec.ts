@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '../database/prisma.service';
 import { User } from '@prisma/client';
+import { AuthService } from '../auth/auth.service';
 
 const mockUser: User[] = [
   {
@@ -48,6 +49,7 @@ describe('UserService', () => {
             },
           },
         },
+        AuthService,
       ],
     }).compile();
 
