@@ -13,11 +13,12 @@ import { transformAndValidate } from 'class-transformer-validator';
 import { PrismaService } from '../database/prisma.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserEntity } from './entity/user.entity';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
   readonly validator = transformAndValidate;
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private auth: AuthService) {}
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
@@ -51,7 +52,13 @@ export class UserService {
   async createUser(data: CreateUserDTO): Promise<UserEntity> {
     try {
       await this.validator(CreateUserDTO, data);
-      const newUser = await this.prisma.user.create({ data });
+      const hashPassword = await this.auth.hashPassword(data.password);
+      const newUser = await this.prisma.user.create({
+        data: {
+          ...data,
+          password: hashPassword,
+        },
+      });
       return UserEntity.create(newUser);
     } catch (error: any) {
       const constraints = this.constraintsErrors(error);
