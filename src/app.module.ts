@@ -7,4 +7,4 @@ import { RootController } from './root/root.controller';
   imports: [UserModule, PostModule],
   controllers: [RootController],
 })
-export class AppModule { }
+export class AppModule {}
